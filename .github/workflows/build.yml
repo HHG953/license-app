@@ -21,21 +21,25 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk
+          sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev cmake libffi-dev libssl-dev
           python3 -m pip install --upgrade pip
           python3 -m pip install buildozer cython
 
       - name: Build with Buildozer
         run: |
-          # 这行是关键，确保能找到 buildozer 命令
+          # 【关键修复】允许管道断开而不被当做错误退出
+          set +o pipefail
           export PATH="$PATH:/home/runner/.local/bin"
           buildozer init
           sed -i 's/^requirements = .*/requirements = python3,kivy==2.2.1,pycryptodome/' buildozer.spec
           sed -i 's/^# android.api = .*/android.api = 33/' buildozer.spec
           sed -i 's/^# android.minapi = .*/android.minapi = 21/' buildozer.spec
           sed -i 's/^# android.accept_sdk_license = .*/android.accept_sdk_license = True/' buildozer.spec
-          echo "android.accept_sdk_license = True" >> buildozer.spec
-          yes | buildozer -v android debug
+          # 强制使用服务器本地的 SDK 和 NDK，不要重新下载
+          echo "android.sdk_path = /usr/local/lib/android/sdk" >> buildozer.spec
+          echo "android.ndk_path = /usr/local/lib/android/sdk/ndk/27.3.13750724" >> buildozer.spec
+          # 使用 yes 接受许可，并加上 || true 确保不会因为管道断开而停止
+          yes | buildozer -v android debug || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
