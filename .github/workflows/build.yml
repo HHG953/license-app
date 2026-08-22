@@ -24,13 +24,13 @@ jobs:
           sudo apt install -y git zip unzip openjdk-17-jdk
           pip install buildozer cython
 
-      - name: Build with Buildozer
+            - name: Build with Buildozer
         run: |
           buildozer init
           sed -i 's/^requirements = .*/requirements = python3,kivy==2.2.1,pycryptodome/' buildozer.spec
           sed -i 's/^# android.api = .*/android.api = 33/' buildozer.spec
           sed -i 's/^# android.minapi = .*/android.minapi = 21/' buildozer.spec
-          buildozer -v android debug
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
