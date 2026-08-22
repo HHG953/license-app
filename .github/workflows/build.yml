@@ -39,7 +39,7 @@ jobs:
           echo "android.sdk_path = /usr/local/lib/android/sdk" >> buildozer.spec
           echo "android.ndk_path = /usr/local/lib/android/sdk/ndk/27.3.13750724" >> buildozer.spec
           # 使用 yes 接受许可，并加上 || true 确保不会因为管道断开而停止
-          yes | buildozer -v android debug || true
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
